@@ -3,7 +3,7 @@ import { BackgroundBean, backgroundIndexedDBStoreKey } from './backgroundBean';
 
 export class BackgroundLoader {
     #defaultBackground = new BackgroundBean(
-        "../../resources/defaultBackground/waterfall.mp4",
+        "resources/waterfall.mp4",
         "video",
         true
     );

@@ -2,7 +2,7 @@ import React from "react";
 import { BackgroundLoader } from "./backgroundLoader";
 import { BackgroundBean, newBackgroundUploadedEventName } from "./backgroundBean";
 import styled from "styled-components";
-
+import settingStore from "../PersistentStorage/settingsStore";
 
 export class BackgroundComponent extends React.Component {
     constructor(props) {
@@ -10,9 +10,19 @@ export class BackgroundComponent extends React.Component {
         this.backgroundLoader = new BackgroundLoader();
         this.isComponentMounted = false;
         
+        let fit = settingStore.getSetting("background-object-fit");
+        settingStore.subscribeToSettingChange("background-object-fit", this.handleObjectFitStyleValueChange);
+        console.log(fit);
+        if (!fit) fit = "contain";
+
         this.state = {
-            background: {}
+            background: {},
+            objectFitValue: fit
         }
+    }
+
+    handleObjectFitStyleValueChange = (newObjectFitStyleValue) => {
+        this.setState({objectFitValue: newObjectFitStyleValue});
     }
 
     handleNewBackgroundEvent = (newBackgroundEvent) => {
@@ -47,7 +57,7 @@ export class BackgroundComponent extends React.Component {
             -webkit-user-drag: none;
             width: 100%;
             height: 100%;
-            object-fit: ${props.objectFit || 'fit'};
+            object-fit: ${this.state.objectFitValue};
         `;
 
         const Video = styled.video.attrs({
