@@ -42,6 +42,13 @@ export const Label = styled.label`
     margin: 5px;
 `;
 
+export const SmallLabel = styled.label`
+    color: ${props => props.theme.textColor};
+    font-size: 17px;
+    margin: ${props => props.margin || '5px'};
+    white-space: nowrap;
+`;
+
 export const TextInput = styled.input.attrs({ type: 'text' })`
     color: ${props => props.theme.textColor};
     background-color: ${props => props.theme.secondaryColor};

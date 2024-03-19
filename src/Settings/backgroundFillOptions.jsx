@@ -15,7 +15,6 @@ class BackgroundFillOptions extends React.Component {
             selectedOption: fillSetting || "none"
         }
 
-
         this.handleOptionChange = this.handleOptionChange.bind(this);
     }
 

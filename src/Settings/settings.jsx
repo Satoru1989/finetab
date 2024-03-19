@@ -4,6 +4,7 @@ import { BackgroundDiv } from "../StyledComponents/default";
 import { SwitchableTabContainer } from "../UIComponents/switchableTabContainer";
 import BackgroundSettingsWindow from './backgroundSettings';
 import styled from "styled-components";
+import ThemeSettingsWindow from "./themeSetting";
 
 export default class Settings extends Component {
     constructor(props) {
@@ -33,12 +34,11 @@ export default class Settings extends Component {
         return (
             <SettignsDiv>
                 <SwitchableTabContainer 
-                    nameToTabComponent={{"Change Background": <BackgroundSettingsWindow/> }}/>
+                    nameToTabComponent={{
+                        "General": <BackgroundSettingsWindow/>,
+                        "Theme": <ThemeSettingsWindow/>
+                     }}/>
             </SettignsDiv>
         );
     }
 }
-
-/**
- * 
- */
