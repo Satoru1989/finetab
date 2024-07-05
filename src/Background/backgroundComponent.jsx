@@ -4,7 +4,7 @@ import { BackgroundBean, newBackgroundUploadedEventName } from "./backgroundBean
 import styled from "styled-components";
 import settingStore from "../PersistentStorage/settingsStore";
 
-export class BackgroundComponent extends React.Component {
+export class Background extends React.Component {
     constructor(props) {
         super(props);
         this.backgroundLoader = new BackgroundLoader();
@@ -12,7 +12,6 @@ export class BackgroundComponent extends React.Component {
         
         let fit = settingStore.getSetting("background-object-fit");
         settingStore.subscribeToSettingChange("background-object-fit", this.handleObjectFitStyleValueChange);
-        console.log(fit);
         if (!fit) fit = "contain";
 
         this.state = {
@@ -101,7 +100,7 @@ export class BackgroundComponent extends React.Component {
             <div>
                  {
                     this.state.background.type === "video" && 
-                    <Video ref={this.videoRef} autoPlay loop muted> 
+                    <Video ref={this.videoRef} disablePictureInPicture autoPlay loop muted> 
                         <source src={this.state.background.data} type="video/mp4"/>
                     </Video> 
                 } {

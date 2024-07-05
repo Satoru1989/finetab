@@ -1,5 +1,6 @@
 import React from "react";
-import {HighlightDiv, Label, SmallLabel} from "../StyledComponents/default";
+import {SmallLabel} from "../StyledComponents/default";
+import TitleToInput from "./titleToInput";
 
 export function formatColorFromHex(rgba) {
     const rgb = rgba.slice(0, 7);
@@ -41,17 +42,17 @@ export class ColorSelector extends React.Component {
         const { title, name, color } = this.props;
         const { initialColor } = formatColorFromHex(color);
         return (
-            <HighlightDiv style={{display: "flex", justifyContent: "space-between"}}>
-                <div>
-                    <Label>{title}</Label>
-                </div>
+            <TitleToInput
+                title={title}
+                inputSetting={
                 <div>
                     <SmallLabel>{this.state.opacityValue}%</SmallLabel>
                     <input type="range" min="0" max="100" name={name + "Opacity"}
                             value={this.state.opacityValue} onChange={ this.handleOpacityChange }/>
                     <input ref={this.colorRef} type="color" name={name} defaultValue={initialColor} />
                 </div>
-            </HighlightDiv>
+                }
+            />
         );
     }
 }

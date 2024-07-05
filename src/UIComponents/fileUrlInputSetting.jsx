@@ -3,6 +3,9 @@ import TitleToInput from "./titleToInput";
 import { TextInput, FileInput, Button } from "../StyledComponents/default";
 import { withTheme } from "styled-components";
 
+/**
+ * @param title
+ */
 class FileUrlInputSetting extends React.Component {
     render() {
         const { theme } = this.props;
@@ -13,8 +16,8 @@ class FileUrlInputSetting extends React.Component {
                 inputSetting={
                     <>
                         { this.props.selectedOption === 'link' ? 
-                            <TextInput ref={this.props.inputRef} /> : 
-                            <FileInput accept={this.props.accept} ref={this.props.inputRef} />
+                            <TextInput name={this.props.name} maxLength="1024" ref={this.props.inputRef} /> : 
+                            <FileInput name={this.props.name} accept={this.props.accept} ref={this.props.inputRef} />
                         }
                         <Button 
                             onClick={() => this.props.handleOptionChange('link')}

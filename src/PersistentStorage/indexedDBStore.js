@@ -14,6 +14,10 @@ class IndexedDBStore {
         request.onerror = (errorEvent) => {
             throw new Error("Error during writing ", errorEvent.error);
         }
+
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => resolve(request.result);
+        });
     }
 
     /** 

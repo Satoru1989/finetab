@@ -16,28 +16,39 @@ describe("indexedDBStore class", () => {
     
     const classData = new Test("a", true);
 
-    function expectReadDataToBe(data) {
-        indexedDBStore.readDataFromKey(key).then((retrievedData) =>
-            expect(retrievedData).toBe(data));
+    function expectReadDataToBe(data, done) {
+        indexedDBStore.readDataFromKey(key).then((retrievedData) => {
+            expect(retrievedData).toBe(data);
+            done();
+        });
     }
 
-    it("should create an entry if key doesn't exist", () => {
+    it("should create an entry if key doesn't exist", done => {
         indexedDBStore.writeDataByKey(firstData, key);
-        expectReadDataToBe(firstData);
+        expectReadDataToBe(firstData, done);
     });
 
-    it("should update an entry if key exists", () => {
+    it("should update an entry if key exists", done => {
         const secondData = "second entry";
         indexedDBStore.writeDataByKey(secondData, key);
-        expectReadDataToBe(secondData);
+        expectReadDataToBe(secondData, done);
     });
 
-    it("should retrive class data", () => {
+    it("should retrive class data", done => {
         indexedDBStore.writeDataByKey(classData, key);
-        indexedDBStore.readDataFromKey(key).then((retrievedData) =>
-            expect(new Test(
+        indexedDBStore.readDataFromKey(key).then((retrievedData) => {
+                expect(new Test(
                 retrievedData.a,
                 retrievedData.b
-        )).toStrictEqual(classData));
+            )).toStrictEqual(classData)
+            done();
+        });
+    });
+
+    it("should resolve on successefull write", done => {
+        indexedDBStore.writeDataByKey(key, firstData).then( (data) => {
+            expect(data).toBe(firstData)
+            done();
+        })
     });
 });

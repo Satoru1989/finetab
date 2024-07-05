@@ -1,11 +1,12 @@
 import './App.css';
 import React from 'react';
 
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import Settings from './Settings/settings';
-import { BackgroundComponent } from './Background/backgroundComponent';
+import { Background } from './Background/backgroundComponent';
 import Theme from './StyledComponents/theme';
 import settingStore from './PersistentStorage/settingsStore';
+import DesktopWithUI from './Desktop/desktopUI';
 
 class App extends React.Component {
     constructor(props) {
@@ -25,12 +26,12 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        window.addEventListener('keypress', this.handleKeySPress);
+        window.addEventListener('keydown', this.handleKeySPress);
         settingStore.subscribeToSettingChange("theme", this.setNewTheme );
     }
 
     componentWillUnmount() {
-        window.removeEventListener('keypress', this.handleKeySPress);
+        window.removeEventListener('keydown', this.handleKeySPress);
     }
 
     handleKeySPress = (event) => {
@@ -44,7 +45,8 @@ class App extends React.Component {
         return (
             <div className="App">
                 <ThemeProvider theme={this.state.theme}>
-                    <BackgroundComponent/>
+                    <Background/>
+                    <DesktopWithUI/>
                     <Settings ref={this.settignsRef}/>
                 </ThemeProvider>
             </div>

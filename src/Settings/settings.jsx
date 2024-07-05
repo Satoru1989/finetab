@@ -2,7 +2,7 @@ import React, {Component} from "react";
 
 import { BackgroundDiv } from "../StyledComponents/default";
 import { SwitchableTabContainer } from "../UIComponents/switchableTabContainer";
-import BackgroundSettingsWindow from './backgroundSettings';
+import GeneralSettingsWindow from './backgroundSettings';
 import styled from "styled-components";
 import ThemeSettingsWindow from "./themeSetting";
 
@@ -35,7 +35,7 @@ export default class Settings extends Component {
             <SettignsDiv>
                 <SwitchableTabContainer 
                     nameToTabComponent={{
-                        "General": <BackgroundSettingsWindow/>,
+                        "General": <GeneralSettingsWindow/>,
                         "Theme": <ThemeSettingsWindow/>
                      }}/>
             </SettignsDiv>

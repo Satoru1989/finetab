@@ -1,12 +1,11 @@
 import React from 'react';
 import FileUrlInputSetting from '../UIComponents/fileUrlInputSetting';
 import BackgroundFillOptions from './backgroundFillOptions';
-import { Button } from '../StyledComponents/default';
+import { Button, ContainerDiv } from '../StyledComponents/default';
 import BackgroundSaver from '../Background/backgroundSaver';
 import styled from 'styled-components';
 
-
-class BackgroundSettingsWindow extends React.Component {
+export default class GeneralSettingsWindow extends React.Component {
 
     constructor(props) {
         super(props);
@@ -37,21 +36,13 @@ class BackgroundSettingsWindow extends React.Component {
     }
 
     render() {
-        let Container = styled.div`
-            > * {
-                margin: 5px;
-            }
-            text-align: center;
-            margin: 20px;
-        `;
-
         let ErrorMessageLabel = styled.label`
             color: red;
             font-size: 1.3em;
         `;
 
         return (
-            <Container>
+            <ContainerDiv>
                 <ErrorMessageLabel> {this.state.errorMessage} </ErrorMessageLabel>
                 <FileUrlInputSetting 
                     title="Background"
@@ -62,9 +53,7 @@ class BackgroundSettingsWindow extends React.Component {
                 />
                 <BackgroundFillOptions/>
                 <Button onClick={this.handleApply}>Apply</Button>
-            </Container>
+            </ContainerDiv>
         );
     }
 }
-
-export default BackgroundSettingsWindow;
