@@ -22,11 +22,12 @@ export default class ItemFormFactory {
                     name: json.name,
                     data: itemJson
                 }) :
-                (itemJson) => this.handleEditSubmit({
+                (itemJson) => { 
+                    this.handleEditSubmit({
                     id: json.id,
                     name: json.name,
-                    data: itemJson
-                });
+                    data: {...json.data, ...itemJson}
+                } ); }
             
             return <Component defaultData={json.data} onSubmit={handleSubmit} onClosing={this.#onCloseCallback}/>
         }
@@ -58,6 +59,7 @@ export default class ItemFormFactory {
         if (this.#nameToItemEditForm[json.name] === undefined) {
             console.error(`Could not found ${json.name} in nameToItemEditForm register`);
         }
+
         return this.#nameToItemEditForm[json.name](json);
     }
 

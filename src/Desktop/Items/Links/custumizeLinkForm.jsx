@@ -15,8 +15,11 @@ export default class CustumizeLinkForm extends React.Component {
 
         this.defaultColor = "#000000ff";
         if (this.props.defaultData !== undefined) {
+            const width = this.props.defaultData.imgWidth;
+            const height = this.props.defaultData.imgHeight;
+            const imgDiagonalSize = Math.round(Math.sqrt(width * width + height * height));
             this.state = {
-                size: this.props.defaultData.diagonalImageSize,
+                size: imgDiagonalSize,
                 fontSize: this.props.defaultData.fontSize,
                 borderRadius: this.props.defaultData.borderRadius
             }

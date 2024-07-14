@@ -1,11 +1,8 @@
 import React from "react";
 import DesktopModel from "./desktopModel";
-import styled from 'styled-components';
-import ContextMenu from "./contextMenu";
-
 
 const desktopModel = new DesktopModel();
-
+desktopModel.innitialize();
 
 export default class Desktop extends React.Component {    
     constructor(props) {

@@ -6,7 +6,9 @@ export default class ItemFactory {
     #nameToItemClass = {}
     static #key = 0;
 
-    constructor() {
+    constructor(saveDesktopCallback) {
+        this.saveDesktopCallback = saveDesktopCallback;
+
         this.#nameToItemClass = {
             'testItem': this.#getBuildComponentFunction(TestItem),
             'link': this.#getBuildComponentFunction(Link)
@@ -23,7 +25,7 @@ export default class ItemFactory {
                 e.detail = json;
                 e.detail["id"] = id;
             }}>
-                <Component id={id} name={json.name} data={json.data}/>
+                <Component saveItemState={this.saveDesktopCallback} id={id} name={json.name} data={json.data}/>
             </div>
         )
     }
@@ -32,7 +34,7 @@ export default class ItemFactory {
         let copyJson;
 
         if (typeof dataJson !== 'object' || dataJson === null) {
-            console.error(`itemFactory getItemAsComponent: ${dataJson} is not an object.`);
+            console.error(`itemFactory getItemAsComponent: dataJson(${dataJson}) is not an object.`);
             return;
         }
 
@@ -43,7 +45,7 @@ export default class ItemFactory {
             return;
         }
 
-        console.log("Copy json ", copyJson);
+        //console.log("Copy json ", copyJson);
 
         if (!('name' in copyJson)) {
             throw new Error('itemFactory getItemAsComponent: Invalid JSON; missing "name" property.');

@@ -6,9 +6,10 @@ import CustumizeLinkForm from "./custumizeLinkForm";
 import { formatColorToHex } from "../../../UIComponents/colorSelector";
 
 export default class LinkForm extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.links = [];
+        console.log('Form ', this.props.defaultData);
     }
 
     getImageDimensions(preferedDiagonal, src) {
@@ -24,7 +25,7 @@ export default class LinkForm extends React.Component {
             img.onload = () => {
                 let width = img.width;
                 let height = img.height;
-                const originalDiagonal = Math.sqrt(width * width + height * height);
+                const originalDiagonal = Math.round(Math.sqrt(width * width + height * height));
                 const factor = preferedDiagonal / originalDiagonal;
                 
                 width = img.width * factor;
@@ -45,15 +46,19 @@ export default class LinkForm extends React.Component {
     }
 
     async sendData(e) {
+        
         let src = e.target.src;
-        console.log(e.target.src)
         src = this.isFile ? src.files[0] : src.value; 
+
+        let isImgSrcUnchanged = (src === '' || src === undefined || src === null)
+        if (isImgSrcUnchanged) {
+            src = this.props.defaultData.src;
+        }
+
         const [ imgWidth, imgHeight ] = await this.getImageDimensions(e.target.diagonalSize.value, src); 
 
         const textColorOpacity = parseInt(e.target.textColorOpacity.value);
         const textColor = formatColorToHex(e.target.textColor.value, textColorOpacity);
-
-        console.log("Link submiting src is ", src);
 
         const data = {
             src: src,

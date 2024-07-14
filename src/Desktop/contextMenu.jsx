@@ -32,7 +32,7 @@ export default class ContextMenu extends React.Component {
     }
 
     onRightClick = (x, y, json) => {
-        this.itemJson = json;
+        this.itemJson = structuredClone(json);
 
         this.setState({
             isVisible: !this.state.isVisible,

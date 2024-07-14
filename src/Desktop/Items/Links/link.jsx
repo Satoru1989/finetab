@@ -7,13 +7,7 @@ export default class Link extends React.Component {
         super(props);
 
         this.data = this.props.data;
-
-        console.log("link data ", this.data);
         this.imgSrc = this.data.isFile ? URL.createObjectURL(this.data.src) : this.data.src;
-
-
-        this.x = window.innerWidth * 0.25;
-        this.y = window.innerHeight * 0.25
     }
 
     componentWillUnmount() {
@@ -26,25 +20,37 @@ export default class Link extends React.Component {
     }
 
     render() {
+        const Title = styled.span`
+            font-size: ${this.data.fontSize}px;
+            font-family: sans-serif;
+            border-size: 0px;
+            padding: 0px;
+            margin: 0px;
+            color: black;
+            display: block;
+            text-align: center;
+            color: ${this.data.textColor};
+        `;
+
         const Img = styled.img`
             width: ${this.data.imgWidth}px;
             height: ${this.data.imgHeight}px;
             user-select: none;
+            border-radius: ${this.data.borderRadius}px;
         `;
-
-        console.log(`src: ${this.imgSrc}`)
 
         return (
             <Draggable newPosition={ (x, y) => {
-                    this.x = x;
-                    this.y = y;  
+                    this.data['x'] = x;
+                    this.data['y'] = y;
+                    this.props.saveItemState();
                 }}
-                initialX ={this.x} initialY={this.y}>
+                initialX ={this.data.x} initialY={this.data.y}>
                 
-                <div 
-                    style={ {height: '100px', width: '100px', backgroundColor: 'red'} }>
-                </div>
-
+                <Img draggable="false" alt="ooooops" 
+                     src={this.imgSrc} 
+                     />
+                <Title>{this.data.title}</Title>
             </Draggable>
         );
     }

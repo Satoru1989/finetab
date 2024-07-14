@@ -8,7 +8,6 @@ import ItemEvent from './itemEvent';
 
 
 describe( 'Desktop model test suite', () => {
-
     let desktop0 = {
         items: [ 
             {name: "link", data: { word: "mio"}},
@@ -63,18 +62,20 @@ describe( 'Desktop model test suite', () => {
 
         const itemComponents = itemFactory.getItemsAsComponents(desktop.items);
         
-        const expectedProps = itemComponents.map(comp => comp.props.children.props);
+        const expectedProps = itemComponents.map(comp => comp.props.children.props.data);
         const expectedTypes = itemComponents.map(comp => comp.props.children.type);
 
-        const acutalProps = items.map(item => item.props.children.props);
+        const acutalProps = items.map(item => item.props.children.props.data);
         const acutalTypes = items.map(item => item.props.children.type);
 
-        expect(acutalProps).toStrictEqual(expectedProps);
         expect(acutalTypes).toStrictEqual(expectedTypes);
+        expect(acutalProps).toStrictEqual(expectedProps);
     }
 
-    function testItemEvent(expectedDesktop, itemEvent, done) {
+    async function testItemEvent(expectedDesktop, itemEvent, done) {
         let desktopModel = new DesktopModel();
+
+        await desktopModel.initiliazePromise;
 
         let nrCalled = 0;
         callback = (items) => {
@@ -82,6 +83,7 @@ describe( 'Desktop model test suite', () => {
             // first time called to innit the items when setUpdateItemsCallback is called
             if (nrCalled === 2) {
                 matchItemsToDesktopComponents(items, expectedDesktop);
+                expect(desktopModel.currentDesktopItemArrJson).toStrictEqual(expectedDesktop.items);
                 desktopModel.destructor();
             }
         }
@@ -104,6 +106,7 @@ describe( 'Desktop model test suite', () => {
 
         callback = (items) => {
             matchItemsToDesktopComponents(items, desktop0);
+            expect(desktopModel.currentDesktopItemArrJson).toStrictEqual(desktop0.items);
             done()
         }
 
@@ -112,7 +115,7 @@ describe( 'Desktop model test suite', () => {
         done();
     });
 
-    test('Switching desktop', done => {
+    test('Switching desktop', async () => {
         let desktopModel = new DesktopModel();
 
         let nrCalled = 0;
@@ -137,24 +140,23 @@ describe( 'Desktop model test suite', () => {
             //go left
             if (nrCalled === 7)
                 matchItemsToDesktopComponents(items, desktop0);
-            if (nrCalled >= 7) {
-                desktopModel.destructor();
-                done();
-            }
         }
 
         desktopModel.setUpdateItemsCallback(callback);
+        await desktopModel.initiliazePromise;
 
-        desktopModel.switchToLeftDesktop();
-        desktopModel.switchToLeftDesktop();
-        desktopModel.switchToLeftDesktop();
-        desktopModel.switchToLeftDesktop();
+        await desktopModel.switchToLeftDesktop();
+        await desktopModel.switchToLeftDesktop();
+        await desktopModel.switchToLeftDesktop();
+        await desktopModel.switchToLeftDesktop();
         
-        desktopModel.switchToRightDesktop();
-        desktopModel.switchToRightDesktop();
-        desktopModel.switchToRightDesktop();
+        await desktopModel.switchToRightDesktop();
+        await desktopModel.switchToRightDesktop();
+        await desktopModel.switchToRightDesktop();
 
-        desktopModel.switchToLeftDesktop();
+        await desktopModel.switchToLeftDesktop();
+
+        desktopModel.destructor();
     });
 
     
@@ -190,8 +192,10 @@ describe( 'Desktop model test suite', () => {
         itemEvent.isEditEventType = true;
         itemEvent.itemJson = { name: "testItem", id: 1, data: {word: "duck" } }
 
-        indexedDBStore.readDataFromKey(desktop0.id).then( (desktop) => 
-            testItemEvent(desktop, itemEvent, done));
+        indexedDBStore.readDataFromKey(desktop0.id).then( (desktop) => {
+            desktop.items[1] = { name: "testItem", id: 1, data: {word: "duck" } };
+            testItemEvent(desktop, itemEvent, done);
+        });
     });
 
     // TODO

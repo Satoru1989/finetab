@@ -17,7 +17,11 @@ class FileUrlInputSetting extends React.Component {
                     <>
                         { this.props.selectedOption === 'link' ? 
                             <TextInput name={this.props.name} maxLength="1024" ref={this.props.inputRef} /> : 
-                            <FileInput name={this.props.name} accept={this.props.accept} ref={this.props.inputRef} />
+                            <FileInput name={this.props.name} accept={this.props.accept} ref={this.props.inputRef} 
+                            style={{
+                                width: '100%',
+                                overflow: 'hidden',
+                            }}/>
                         }
                         <Button 
                             onClick={() => this.props.handleOptionChange('link')}

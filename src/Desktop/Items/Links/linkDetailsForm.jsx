@@ -29,6 +29,7 @@ const LinkItem = ({ link, onDelete }) => {
 export default class LinkDetailsForm extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = {
             selectedOption: 'file',
             links: [],
@@ -54,7 +55,9 @@ export default class LinkDetailsForm extends React.Component {
     componentDidMount() {
         if (this.inputRef.current !== null && this.inputRef.current !== undefined &&
             this.props.defaultData !== undefined && !this.innitialized) {
-            this.inputRef.current.value = this.props.defaultData.src;
+            if (!this.props.defaultData.isFile)
+                this.inputRef.current.value = this.props.defaultData.src;
+            
             this.innitialized = true;
         }
     }

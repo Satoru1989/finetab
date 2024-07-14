@@ -2,8 +2,11 @@ import React from 'react';
 import FileUrlInputSetting from '../UIComponents/fileUrlInputSetting';
 import BackgroundFillOptions from './backgroundFillOptions';
 import { Button, ContainerDiv } from '../StyledComponents/default';
+import OnOffSwitch from '../UIComponents/onOffSwitch';
 import BackgroundSaver from '../Background/backgroundSaver';
+import settingStore from '../PersistentStorage/settingsStore';
 import styled from 'styled-components';
+import TitleToInput from '../UIComponents/titleToInput';
 
 export default class GeneralSettingsWindow extends React.Component {
 
@@ -16,6 +19,11 @@ export default class GeneralSettingsWindow extends React.Component {
 
         this.backgroundSaver = new BackgroundSaver();
         this.backgroundDataRef = React.createRef();
+        this.desktopSwitchWithMouseAllowed = settingStore.getSetting('desktopSwitchWithMouseAllowed');
+        if (this.desktopSwitchWithMouseAllowed === undefined || this.desktopSwitchWithMouseAllowed === null) {
+            settingStore.setSetting('desktopSwitchWithMouseAllowed', 'on');
+            this.desktopSwitchWithMouseAllowed = 'on';
+        }
     }
 
     handleOptionChange = () => {
@@ -52,6 +60,15 @@ export default class GeneralSettingsWindow extends React.Component {
                     inputRef={this.backgroundDataRef}
                 />
                 <BackgroundFillOptions/>
+                <TitleToInput
+                    title={ 'Mouse desktop switch' }
+                    inputSetting={
+                    <OnOffSwitch 
+                        onOptionChange={(option) => {settingStore.setSetting('desktopSwitchWithMouseAllowed', option)}} 
+                        selected={this.desktopSwitchWithMouseAllowed}
+                        onText="on" offText="off"/>
+                    }
+                />
                 <Button onClick={this.handleApply}>Apply</Button>
             </ContainerDiv>
         );

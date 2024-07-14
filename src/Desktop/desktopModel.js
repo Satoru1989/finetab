@@ -1,49 +1,28 @@
 import ItemFactory from "./itemFactory";
 import indexedDBStore from "../PersistentStorage/indexedDBStore";
+import settingStore from "../PersistentStorage/settingsStore";
 import ItemEvent from "./itemEvent";
-
-
-/**
- * TODO 
- * Stop the madness with children of props of children props
- * 1) Separate representing item json data from the item components
- * 2) 
- * 
- * <Component data> I need to dinamicaly save
- *      I want data to be separate from ? 
- * 
- * 
- */
-
-/**
-    1) during innit
-        ctor -> async retrive 
-
-    2) during switching
-    Retrive desktop by id.then(
-
-    )
- */
-
 
 export default class DesktopModel {
     #currentDesktop = null;
     #leftDesktop = null;
     #rightDesktop = null;
 
-    currentDesktopItemJson = null;
-    leftDesktopItemJson = null;
-    rightDesktopItemJson = null;
-
     constructor() {
-        this.itemFactory = new ItemFactory();
+        this.currentDesktopItemArrJson = null;
+        this.leftDesktopItemArrJson = null;
+        this.rightDesktopItemArrJson = null;
+        
+        this.itemFactory = new ItemFactory( () => this.saveCurrentDesktop());
         this.updateItemsCallback = null;
 
-        this.areDesktopsInitialized = this.initializeDesktopVariables().then(
-            () => this.areDesktopsInitialized = true
-        );
+        this.mouseInDesktopArea = false
+        this.isInitialized = false;
+        this.initiliazePromise = this.innitialize();
 
         document.addEventListener(ItemEvent.getEventName(), this.handleItemEvent);
+        document.addEventListener('keyup', this.handleOnKeyUp);
+        document.addEventListener('mousemove', this.handleMouseMove);
     }
 
     async retrieveDesktopJson(desktopId) {
@@ -60,155 +39,163 @@ export default class DesktopModel {
         return desktop;
     }
 
-    initializeDesktopVariables = async () => {
-        this.#currentDesktop = await this.retrieveDesktopJson('desktop 0');
-        this.currentDesktopItemsJson = this.#currentDesktop.items;
-        this.#currentDesktop = this.itemFactory.getItemsAsComponents(this.currentDesktopItemsJson);
-    
+    /**
+     * @param {string} desktopVar possible values 'current', 'left', 'right'
+     * @param {string} desktopId format 'desktop(int value)'
+     */
+    async retrieveDesktopFromDB(desktopVar, desktopId) {
+        let desktopJson = await this.retrieveDesktopJson(desktopId);
+        let desktopItemsArr = desktopJson.items;
+        desktopJson.items =  this.itemFactory.getItemsAsComponents(desktopItemsArr);
+
+        if (desktopVar === 'current') {
+            this.#currentDesktop = desktopJson;
+            this.currentDesktopItemArrJson = desktopItemsArr;
+        } if (desktopVar === 'left') {
+            this.#leftDesktop = desktopJson;
+            this.leftDesktopItemArrJson = desktopItemsArr;
+        } if (desktopVar === 'right') {
+            this.#rightDesktop = desktopJson;
+            this.rightDesktopItemArrJson = desktopItemsArr;
+        }
+    }
+
+    async innitialize() {
+        await this.retrieveDesktopFromDB('current', 'desktop 0');
+
         if (this.updateItemsCallback !== null)
             this.updateItemsCallback();
-        else 
-            this.updateItemsCallback = () => {throw new Error('desktopModel: updateItemsCallback is not set');}
 
-        this.#leftDesktop = this.retrieveDesktopJson('desktop -1').then(
-            (desktop) => {
-                this.#leftDesktop = desktop;
-                this.leftDesktopItemJson = this.#leftDesktop.items;
-                this.#leftDesktop = this.itemFactory.getItemsAsComponents(this.leftDesktopItemsJson);
-            }
-        );
-        this.#rightDesktop = this.retrieveDesktopJson('desktop 1').then(
-            (desktop) => {
-                this.#rightDesktop = desktop;
-                this.rightDesktopItemJson = this.#rightDesktop.items;
-                this.#rightDesktop = this.itemFactory.getItemsAsComponents(this.rightDesktopItemJson);
-            }
-        );
+        await this.retrieveDesktopFromDB('right', 'desktop 1');
+        await this.retrieveDesktopFromDB('left', 'desktop -1');
+
+        this.isInitialized = true;
     }
 
     setUpdateItemsCallback = (callback) => {
-        this.updateItemsCallback = () => 
+        this.updateItemsCallback = () => {
             callback(this.#currentDesktop.items)
+        }
 
         if (this.#currentDesktop !== null)
             this.updateItemsCallback();
     }
 
-    deferCallbackUntilResourcesLoaded = (callback) => {
-        if (this.areDesktopsInitialized instanceof Promise) {
-            this.areDesktopsInitialized.then(callback);
-            return true;
-        } if (this.#rightDesktop instanceof Promise) {
-            this.#rightDesktop.then(callback);
-            return true;
-        } if (this.#leftDesktop instanceof Promise) {
-            this.#leftDesktop.then(callback);
-            return true;
-        }
-
-        return false;
-    }
-
-    switchDesktop = (isSwitchingLeft) => {
-        if (this.deferCallbackUntilResourcesLoaded(
-            () => this.switchDesktop(isSwitchingLeft)))
+    async switchToLeftDesktop() { 
+        if (!this.isInitialized) return;
+        if (this.leftDesktopItemArrJson.length === 0 && this.currentDesktopItemArrJson.length === 0) 
             return;
 
-        let nextDesktopIsEmpty =  isSwitchingLeft ? this.#leftDesktop.items.length === 0 : this.#rightDesktop.items.length === 0;
-        if (this.#currentDesktop.items.length === 0 && nextDesktopIsEmpty) 
-            return;
+        this.#rightDesktop = this.#currentDesktop;
+        this.#currentDesktop = this.#leftDesktop;
 
-        if (isSwitchingLeft) {
-            this.#rightDesktop = this.#currentDesktop;
-            this.#currentDesktop = this.#leftDesktop;
-        } else {
-            this.#leftDesktop = this.#currentDesktop;
-            this.#currentDesktop = this.#rightDesktop;
-        }
+        this.rightDesktopItemArrJson = this.currentDesktopItemArrJson;
+        this.currentDesktopItemArrJson = this.leftDesktopItemArrJson;
 
         let desktopIdNumberStr = this.#currentDesktop.id.split(' ')[1];
-        let nextDesktopIdNumber = parseInt(desktopIdNumberStr) + (isSwitchingLeft ? -1 : 1);
-        
-        if (isSwitchingLeft) {
-            this.#leftDesktop = this.retrieveDesktopJson('desktop ' + nextDesktopIdNumber).then(
-                (desktop) => 
-                    this.#leftDesktop = desktop                
-            );
-        } else {
-            this.#rightDesktop = this.retrieveDesktopJson('desktop ' + nextDesktopIdNumber).then(
-                (desktop) => 
-                    this.#rightDesktop = desktop
-            );
-        }
+        let nextDesktopId = parseInt(desktopIdNumberStr) - 1;
 
+        await this.retrieveDesktopFromDB('left', 'desktop ' + nextDesktopId.toString());
         this.updateItemsCallback();
     }
 
-    switchToLeftDesktop = () => 
-        this.switchDesktop(true)
+    async switchToRightDesktop() {
+        if (!this.isInitialized) return;
+        if (this.rightDesktopItemArrJson.length === 0 && this.currentDesktopItemArrJson.length === 0) 
+            return;
 
-    switchToRightDesktop = () =>
-        this.switchDesktop(false)
+        this.#leftDesktop = this.#currentDesktop;
+        this.#currentDesktop = this.#rightDesktop;
 
-    saveCurrentDesktop() {
-        let desktopItemsJson = this.#currentDesktop.items.map( (itemComponent) => {
-            let props = itemComponent.props.children.props;
-            return { 
-                name: props.name,
-                data: props.data 
-            };
-        });
+        this.leftDesktopItemArrJson = this.currentDesktopItemArrJson;
+        this.currentDesktopItemArrJson = this.rightDesktopItemArrJson;
 
-        console.log("Saving... ", desktopItemsJson);
-        
-        indexedDBStore.writeDataByKey(
-            {items: desktopItemsJson, id: this.#currentDesktop.id}, 
-            this.#currentDesktop.id).then( (desktop) => {
-                console.log("Saved: " , desktop);
-                this.__test__reportOnDesktopSaving(desktop);
-            });
+        let desktopIdNumberStr = this.#currentDesktop.id.split(' ')[1];
+        let nextDesktopId = parseInt(desktopIdNumberStr) + 1;
+
+        await this.retrieveDesktopFromDB('right', 'desktop ' + nextDesktopId.toString());
+        this.updateItemsCallback();
     }
-    
-    deleteItem = (id) => {
-        let items = this.#currentDesktop.items;
-        if (id < 0 || id >= items.length) return;
 
-        items.splice(id, 1);
-        for (let i = id; i < items.length; i++)
-            items[i] = this.itemFactory.getItemAsComponent(items[i].props.children.props, i);
+    async saveCurrentDesktop() {
+        if(!this.isInitialized) return;
+
+        await indexedDBStore.writeDataByKey(
+            {items: this.currentDesktopItemArrJson, id: this.#currentDesktop.id}, 
+            this.#currentDesktop.id).then( (desktop) => {
+                this.__test__reportOnDesktopSaving(desktop);
+            }
+        );
+    }
+
+    deleteItem = (id) => {
+        let itemsCount = this.#currentDesktop.items.length;
+        if (id < 0 || id >= itemsCount) return;
+
+        this.#currentDesktop.items.splice(id, 1);
+        this.currentDesktopItemArrJson.splice(id, 1);
+
+        for (let i = id; i < itemsCount - 1; i++) {
+            this.#currentDesktop.items[i] = this.itemFactory.getItemAsComponent(this.currentDesktopItemArrJson[i], i);
+        }
     }
 
     handleItemEvent = (e) => {
-        if(this.deferCallbackUntilResourcesLoaded(
-            () => this.handleItemEvent(e)))
-            return;
+        if(!this.isInitialized) return;
 
         let itemEvent = new ItemEvent(e.detail);
+        
         let item = itemEvent.itemJson;
-
+        
         if (itemEvent.isCreateEventType) {
-            /**
-             * ISSUE
-             * For some reason getItemAsComponent transforms the file blob inside link into {}
-             * json copying it is inside getItemAsComponent
-             * but if no copy edit no work
-             * oh no
-             */
+            this.currentDesktopItemArrJson.push(structuredClone(item));
             let newItem = this.itemFactory.getItemAsComponent(item, this.#currentDesktop.items.length);
             this.#currentDesktop.items.push(newItem);
         } else if (itemEvent.isDeleteEventType) {
             this.deleteItem(item.id);
         } else if (itemEvent.isEditEventType) {
+            this.currentDesktopItemArrJson[item.id] = structuredClone(item);
             let newItem = this.itemFactory.getItemAsComponent(item, item.id);
-            this.#currentDesktop[item.id] = newItem; 
+            this.#currentDesktop.items[item.id] = newItem; 
         }
 
         this.updateItemsCallback();
         this.saveCurrentDesktop();
     }
 
+    handleOnKeyUp = (e) => {
+        if (e.key.toLowerCase() === 'a') {
+            this.switchToLeftDesktop();
+        } else if (e.key.toLowerCase() === 'd') {
+            this.switchToRightDesktop();
+        } else if (e.key.toLowerCase() === 'arrowleft') {
+            this.switchToLeftDesktop();
+        } else if (e.key.toLowerCase() === 'arrowright') {
+            this.switchToRightDesktop();
+        }
+    }
+
+    handleMouseMove = (e) => {
+        if (settingStore.getSetting("desktopSwitchWithMouseAllowed") === 'off') return;
+
+        if (e.clientX < 5 && !this.mouseInDesktopArea) {
+            this.switchToLeftDesktop();
+            this.mouseInDesktopArea = true;
+        }
+        
+        if (e.clientX > window.innerWidth - 5 && !this.mouseInDesktopArea) {
+            this.switchToRightDesktop();
+            this.mouseInDesktopArea = true;
+        }
+
+        if (!(e.clientX < 5 || e.clientX > window.innerWidth - 5)) 
+            this.mouseInDesktopArea = false;
+    }
+
     destructor() {
         document.removeEventListener(ItemEvent.getEventName(), this.handleItemEvent);
+        document.removeEventListener('keyup', this.handleOnKeyUp);
+        document.removeEventListener('mousemove', this.handleMouseMove);
     }
 
     __test__calledAfterSavingDesktop = () => {};
