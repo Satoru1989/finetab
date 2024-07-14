@@ -20,7 +20,6 @@ export default class Desktop extends React.Component {
         if (!this.componentsIsMounted) {
             this.desktopModel.setUpdateItemsCallback( (newItems) => {
                 this.setState( {items: newItems} );
-                console.log("Updaing desktop items");
             });  
             this.componentsIsMounted = true;
         }
