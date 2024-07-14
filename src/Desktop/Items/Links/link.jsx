@@ -15,7 +15,7 @@ export default class Link extends React.Component {
             URL.revokeObjectURL(this.imgSrc);
     }
 
-    onClick(e) {
+    onClick = (e) => {
         this.data.links.map(link => window.open(link, '_blank'));
     }
 
@@ -49,6 +49,7 @@ export default class Link extends React.Component {
                 
                 <Img draggable="false" alt="ooooops" 
                      src={this.imgSrc} 
+                     onClick={this.onClick}
                      />
                 <Title>{this.data.title}</Title>
             </Draggable>

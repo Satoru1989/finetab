@@ -46,8 +46,6 @@ export default class ItemFormFactory {
     }
 
     handleCreateSubmit(json) {
-        console.log("Creating item ", json);
-
         let itemEvent = new ItemEvent();
         itemEvent.isCreateEventType = true;
         itemEvent.itemJson = json;

@@ -9,7 +9,6 @@ export default class LinkForm extends React.Component {
     constructor(props) {
         super(props);
         this.links = [];
-        console.log('Form ', this.props.defaultData);
     }
 
     getImageDimensions(preferedDiagonal, src) {
