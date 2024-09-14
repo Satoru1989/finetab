@@ -25,27 +25,31 @@ export default class ItemFactory {
                 e.detail = json;
                 e.detail["id"] = id;
             }}>
-                <Component saveItemState={this.saveDesktopCallback} id={id} name={json.name} data={json.data}/>
+                <Component saveItemState={(newItemData) => {
+                    this.saveDesktopCallback( {
+                        id: id,
+                        name: json.name,
+                        data: newItemData
+                    });
+                }} 
+                    id={id} name={json.name} data={json.data}/>
             </div>
         )
     }
 
     getItemAsComponent(dataJson, id) {
-        let copyJson;
-
-        if (typeof dataJson !== 'object' || dataJson === null) {
+        if (typeof dataJson !== 'object') {
             console.error(`itemFactory getItemAsComponent: dataJson(${dataJson}) is not an object.`);
             return;
         }
 
+        let copyJson;
         try {
-            copyJson = dataJson //JSON.parse(JSON.stringify(dataJson));
+            copyJson = structuredClone(dataJson);
         } catch (error) {
             console.error('itemFactory getItemAsComponent: Error in copying JSON', error);
             return;
         }
-
-        //console.log("Copy json ", copyJson);
 
         if (!('name' in copyJson)) {
             throw new Error('itemFactory getItemAsComponent: Invalid JSON; missing "name" property.');
@@ -53,7 +57,7 @@ export default class ItemFactory {
             throw new Error(`itemFactory getItemAsComponent: The name "${copyJson.name}" wasn't found.`);
         }
 
-        return this.#nameToItemClass[copyJson.name](copyJson, id)
+        return this.#nameToItemClass[copyJson.name](copyJson, id);
     }
 
     getItemsAsComponents(itemsJson) {

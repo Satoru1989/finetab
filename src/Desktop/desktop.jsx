@@ -2,13 +2,11 @@ import React from "react";
 import DesktopModel from "./desktopModel";
 
 const desktopModel = new DesktopModel();
-desktopModel.innitialize();
 
 export default class Desktop extends React.Component {    
     constructor(props) {
         super(props);
 
-        this.desktopModel = desktopModel;
         this.componentsIsMounted = false;
 
         this.state = {
@@ -18,7 +16,7 @@ export default class Desktop extends React.Component {
 
     componentDidMount() {
         if (!this.componentsIsMounted) {
-            this.desktopModel.setUpdateItemsCallback( (newItems) => {
+            desktopModel.setUpdateItemsCallback( (newItems) => {
                 this.setState( {items: newItems} );
             });  
             this.componentsIsMounted = true;

@@ -43,11 +43,11 @@ export default class Link extends React.Component {
             <Draggable newPosition={ (x, y) => {
                     this.data['x'] = x;
                     this.data['y'] = y;
-                    this.props.saveItemState();
+                    this.props.saveItemState(this.data);
                 }}
                 initialX ={this.data.x} initialY={this.data.y}>
                 
-                <Img draggable="false" alt="ooooops" 
+                <Img draggable="false" alt="ops no image" 
                      src={this.imgSrc} 
                      onClick={this.onClick}
                      />

@@ -59,6 +59,7 @@ export default class GeneralSettingsWindow extends React.Component {
                     accept="image/*,video/mp4"
                     inputRef={this.backgroundDataRef}
                 />
+                <Button onClick={this.handleApply}>Change Background</Button>
                 <BackgroundFillOptions/>
                 <TitleToInput
                     title={ 'Mouse desktop switch' }
@@ -69,7 +70,6 @@ export default class GeneralSettingsWindow extends React.Component {
                         onText="on" offText="off"/>
                     }
                 />
-                <Button onClick={this.handleApply}>Apply</Button>
             </ContainerDiv>
         );
     }

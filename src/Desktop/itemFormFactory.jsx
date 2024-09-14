@@ -55,7 +55,7 @@ export default class ItemFormFactory {
 
     getEditFormByName(json) {
         if (this.#nameToItemEditForm[json.name] === undefined) {
-            console.error(`Could not found ${json.name} in nameToItemEditForm register`);
+            console.error(`Could't find ${json.name} in nameToItemEditForm register`);
         }
 
         return this.#nameToItemEditForm[json.name](json);
@@ -63,7 +63,7 @@ export default class ItemFormFactory {
 
     getCreateFormByName(name) {
         if (this.#nameToItemCreateForm[name] === undefined) {
-            console.error(`Could not found ${name} in nameToItemCreateForm register`);
+            console.error(`Could't find ${name} in nameToItemCreateForm register`);
         }
         return this.#nameToItemCreateForm[name]({name: name});
     }

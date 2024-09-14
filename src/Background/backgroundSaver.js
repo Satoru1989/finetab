@@ -13,7 +13,7 @@ export default class BackgroundSaver {
     }
 
     #getMediaTypeFromString(url) {
-        if      (url.indexOf("youtube") !== -1) return "youtubeUrl";
+        if      (url.indexOf("youtube") !== -1) return "not found";//"youtubeUrl";
         else if (url.indexOf(".mp4") !== -1) return "video";
         else if (this.#allowedImageTypes.some(v => url.includes(v))) return "image";
         return "not found";

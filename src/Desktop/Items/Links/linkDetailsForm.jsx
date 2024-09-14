@@ -1,30 +1,9 @@
-import React, {useState} from "react";
+import React from "react";
 import styled from "styled-components";
 import FileUrlInputSetting from "../../../UIComponents/fileUrlInputSetting";
 import TitleToInput from "../../../UIComponents/titleToInput";
-import { Button, Label, ContainerDiv, TextInput } from "../../../StyledComponents/default";
-
-const LinkItem = ({ link, onDelete }) => {
-    const iconAvailable = false;
-    let iconUrl = "";
-
-    return (
-        <li>
-            <TitleToInput
-                title={link}
-                inputSetting={
-                <>
-                    { iconAvailable && 
-                    <Button fontSize="17px" onClick={ () => {
-                        navigator.clipboard.writeText(iconUrl);
-                    }}>copy icon url</Button>
-                    }
-                    <Button fontSize="17px" onClick={onDelete}>delete</Button>
-                </>}  
-            />
-        </li>
-    );
-};
+import { Button, Label, SmallLabel, ContainerDiv, TextInput } from "../../../StyledComponents/default";
+import LinkUlItem from "./linkUlItem";
 
 export default class LinkDetailsForm extends React.Component {
     constructor(props) {
@@ -33,6 +12,7 @@ export default class LinkDetailsForm extends React.Component {
         this.state = {
             selectedOption: 'file',
             links: [],
+            errorMsg: ""
         };
 
         this.titleRef = React.createRef();
@@ -53,13 +33,32 @@ export default class LinkDetailsForm extends React.Component {
     }
 
     componentDidMount() {
-        if (this.inputRef.current !== null && this.inputRef.current !== undefined &&
-            this.props.defaultData !== undefined && !this.innitialized) {
-            if (!this.props.defaultData.isFile)
+        if (this.props.defaultData !== undefined && !this.innitialized) {
+            if (this.inputRef.current != null && !this.props.defaultData.isFile)
                 this.inputRef.current.value = this.props.defaultData.src;
-            
+            if (this.titleRef.current != null)
+                this.titleRef.current.value = this.titlePlaceholder;
+
             this.innitialized = true;
         }
+    }
+
+    displayError(msg) {
+        this.setState({errorMsg: msg});
+    }
+
+    setLinkInputValue = (url) => {
+        if (this.state.selectedOption !== 'link') {
+            this.setState({selectedOption: 'link'}, 
+                () => {
+                     this.props.setIsFile(this.state.selectedOption === 'file');
+                     this.setLinkInputValue(url);
+                }) 
+            return;
+        }
+
+        if (this.inputRef.current != null)
+            this.inputRef.current.value = url;
     }
 
     handleOptionChange = (e) => this.setState({ 
@@ -81,8 +80,7 @@ export default class LinkDetailsForm extends React.Component {
 
     render() {
         const { links } = this.state;
-        const Ul = styled.ul`
-            height: 235px; 
+        const Ul = styled.ul` 
             overflow-y: auto;
             list-style: none;
             margin: 0px;
@@ -94,7 +92,7 @@ export default class LinkDetailsForm extends React.Component {
                 <TitleToInput 
                     title="Title"
                     inputSetting={
-                        <input type="text" name="title" maxLength="255" default={this.titlePlaceholder}  ref={this.titleRef}/>
+                        <TextInput type="text" name="title" maxLength="255" ref={this.titleRef}/>
                     }/>
                 <FileUrlInputSetting  
                     selectedOption={this.state.selectedOption} 
@@ -107,15 +105,21 @@ export default class LinkDetailsForm extends React.Component {
                     title="Add Link: "
                     inputSetting={
                         <>
-                        <Button $margin="0px 5px 0px 0px" onClick={this.handleAddLink}>add</Button> 
-                        <TextInput type="text" maxLength="512" ref={this.linkRef} />
+                        <TextInput type="text" maxLength="1024" ref={this.linkRef} />
+                        <Button $margin="0px 0px 0px 5px" onClick={this.handleAddLink}>add</Button> 
                         </>
                     }
                 />
                 <Label>Links:</Label>
-                <Ul>
-                    {links.map((link, index) => <LinkItem key={index} link={link} onDelete={() => this.deleteLink(index)} />)}
+                <Ul style={{flexGrow: 1, height: "35%"}}>
+                    {links.map((link, index) => 
+                        <LinkUlItem 
+                            key={index} 
+                            link={link} 
+                            setLinkInputValue={this.setLinkInputValue}
+                            onDelete={() => this.deleteLink(index)} />)}
                 </Ul>
+                <SmallLabel fontSize="1.3em">{this.state.errorMsg}</SmallLabel>
             </ContainerDiv>
         );
     }

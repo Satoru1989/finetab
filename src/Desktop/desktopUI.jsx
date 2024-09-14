@@ -50,7 +50,9 @@ export default class DesktopWithUI extends React.Component {
                     newFromCallback={ (newForm) => this.setState({itemForm: newForm}) }
                     onFormCloseCallback={ () => this.setState({itemForm: null}) }/>
 
-                {this.state.itemForm}
+                <div onKeyUp={ (e) => e.stopPropagation()}>
+                    {this.state.itemForm}              
+                </div>
             </Div>
         );
     }

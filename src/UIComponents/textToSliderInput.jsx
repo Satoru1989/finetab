@@ -1,6 +1,5 @@
 import React from "react";
-import { HighlightDiv } from "../StyledComponents/default";
-import { Label, SmallLabel } from "../StyledComponents/default";
+import { SmallLabel } from "../StyledComponents/default";
 import TitleToInput from "./titleToInput";
 
 export default class TextToSliderInput extends React.Component {

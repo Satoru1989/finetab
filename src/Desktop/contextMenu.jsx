@@ -3,6 +3,7 @@ import { BackgroundDiv, Button } from "../StyledComponents/default";
 import styled from 'styled-components'
 import ItemFormFactory from "./itemFormFactory";
 import ItemEvent from "./itemEvent"
+import Settings from "../Settings/settings";
 
 export default class ContextMenu extends React.Component {
 
@@ -33,6 +34,8 @@ export default class ContextMenu extends React.Component {
 
     onRightClick = (x, y, json) => {
         this.itemJson = structuredClone(json);
+
+
 
         this.setState({
             isVisible: !this.state.isVisible,
@@ -68,23 +71,30 @@ export default class ContextMenu extends React.Component {
                      *      some sort of item selection menu where when item is selected the callback
                      *      will return the name of the item so that ContextMenu class could create it
                      *      using factory
-                     */
-                    <Button width="100%"> Add Item</Button>
+                     * 
+                     *  <Button width="100%"> Add Item</Button>
+                    */
                 } 
                 
-                <Button width="100%" 
+                <Button $width="100%" 
                     onClick={ () => this.setNewForm(
                             this.itemFormFactory.getCreateFormByName("link")
                         )}> 
                         Add Link </Button>
+                <Button $width="100%" 
+                    onClick={ () => this.setNewForm(
+                            <Settings onCloseCallback={this.props.onFormCloseCallback}/>
+                        )}>
+                     Settings
+                </Button>
                 { clickedOnItem && 
-                    <Button width="100%" 
+                    <Button $width="100%" 
                         onClick={() => this.setNewForm(
                             this.itemFormFactory.getEditFormByName(this.itemJson)
                         )}> 
                         Edit </Button> }
                 { clickedOnItem && 
-                    <Button width="100%" onClick={() => {
+                    <Button $width="100%" onClick={() => {
                         let itemEvent = new ItemEvent();
                         itemEvent.isDeleteEventType = true;
                         itemEvent.itemJson = {name: this.itemJson.name, id: this.itemJson.id}

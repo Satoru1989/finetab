@@ -1,6 +1,6 @@
 import React from "react";
 import { BackgroundLoader } from "./backgroundLoader";
-import { BackgroundBean, newBackgroundUploadedEventName } from "./backgroundBean";
+import { newBackgroundUploadedEventName } from "./backgroundBean";
 import styled from "styled-components";
 import settingStore from "../PersistentStorage/settingsStore";
 
@@ -18,6 +18,19 @@ export class Background extends React.Component {
             background: {},
             objectFitValue: fit
         }
+
+        this.videoRef = React.createRef();
+
+        window.addEventListener(newBackgroundUploadedEventName, this.handleNewBackgroundEvent);
+        
+        this.backgroundLoader.getBackgroundBeanPromise().then(
+            (bk) => this.setState({background: bk})
+        );
+    }
+
+    handleVideoOnEnded = (e) => {
+        if (this.videoRef.current != null)
+            this.videoRef.current.play();
     }
 
     handleObjectFitStyleValueChange = (newObjectFitStyleValue) => {
@@ -25,20 +38,10 @@ export class Background extends React.Component {
     }
 
     handleNewBackgroundEvent = (newBackgroundEvent) => {
-        if (this.isComponentMounted) {
-            this.setState({background: newBackgroundEvent.detail});
-        } 
-    }
-
-    async componentDidMount() {
-        window.addEventListener(newBackgroundUploadedEventName, this.handleNewBackgroundEvent);
-        let bk = await this.backgroundLoader.getBackgroundBeanPromise();
-        this.setState({background: bk});
-        this.isComponentMounted = true;
+        this.setState({background: newBackgroundEvent.detail});
     }
 
     componentWillUnmount() {
-        this.isComponentMounted = false;
         window.removeEventListener(newBackgroundUploadedEventName, this.handleNewBackgroundEvent);
     }
 
@@ -83,6 +86,7 @@ export class Background extends React.Component {
             align-items: center;
         `;
           
+        // in the current configuration iframe is buggy/doesn't work
         const StyledIframe = styled.iframe.attrs({
             tabIndex: -1
         })`
@@ -96,20 +100,31 @@ export class Background extends React.Component {
             user-select: none;
         `;
 
+        const IframeOverlay = styled.div`
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+        `;
+
         return (
             <div>
                  {
                     this.state.background.type === "video" && 
-                    <Video ref={this.videoRef} disablePictureInPicture autoPlay loop muted> 
+                    <Video ref={this.videoRef} onEnded={this.handleVideoOnEnded} disablePictureInPicture autoPlay muted> 
                         <source src={this.state.background.data} type="video/mp4"/>
                     </Video> 
                 } {
                     this.state.background.type === "youtubeUrl" &&
-                    <IframeContainer>
-                        <StyledIframe title="backgroundIframe" 
-                            width="100%" height="100%" src={this.state.background.data}>
-                        </StyledIframe>
-                    </IframeContainer>
+                    <>
+                        <IframeContainer>
+                            <StyledIframe title="backgroundIframe" 
+                                width="100%" height="100%" src={this.state.background.data}>
+                            </StyledIframe>
+                        </IframeContainer>
+                        <IframeOverlay/>
+                    </>
                 } {
                     this.state.background.type === "image" &&
                     <Img src={this.state.background.data} alt="oops"/> 

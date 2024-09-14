@@ -13,10 +13,13 @@ export default class DesktopModel {
         this.leftDesktopItemArrJson = null;
         this.rightDesktopItemArrJson = null;
         
-        this.itemFactory = new ItemFactory( () => this.saveCurrentDesktop());
+        this.itemFactory = new ItemFactory( (itemData) => {
+            this.currentDesktopItemArrJson[itemData.id] = itemData;
+            this.saveCurrentDesktop();
+        });
         this.updateItemsCallback = null;
 
-        this.mouseInDesktopArea = false
+        this.mouseInDesktopArea = false;
         this.isInitialized = false;
         this.initiliazePromise = this.innitialize();
 
@@ -26,17 +29,13 @@ export default class DesktopModel {
     }
 
     async retrieveDesktopJson(desktopId) {
-        let desktop = null;
         try {
-            desktop = await indexedDBStore.readDataFromKey(desktopId);
+            return (await indexedDBStore.readDataFromKey(desktopId)) ?? 
+                            { items: [], id: desktopId };
         } catch (error) {
             console.error('Error retrieving desktop', error);
+            return { items: [], id: desktopId }
         }
- 
-        if (desktop === undefined || desktop === null)
-            desktop = { items: [], id: desktopId }
-
-        return desktop;
     }
 
     /**
@@ -45,8 +44,9 @@ export default class DesktopModel {
      */
     async retrieveDesktopFromDB(desktopVar, desktopId) {
         let desktopJson = await this.retrieveDesktopJson(desktopId);
+        
         let desktopItemsArr = desktopJson.items;
-        desktopJson.items =  this.itemFactory.getItemsAsComponents(desktopItemsArr);
+        desktopJson.items = this.itemFactory.getItemsAsComponents(desktopItemsArr);
 
         if (desktopVar === 'current') {
             this.#currentDesktop = desktopJson;
@@ -60,8 +60,8 @@ export default class DesktopModel {
         }
     }
 
-    async innitialize() {
-        await this.retrieveDesktopFromDB('current', 'desktop 0');
+    async innitialize() {   
+        await this.retrieveDesktopFromDB('current', "desktop 0");
 
         if (this.updateItemsCallback !== null)
             this.updateItemsCallback();

@@ -51,11 +51,11 @@ class BackgroundFillOptions extends React.Component {
     render() {
         return (
             <TitleToInput
-                title="Fill"
+                title="Background Scale"
                 inputSetting={ <>
                     {this.renderButton("none", "none")}
                     {this.renderButton("contain", "uniform fill")}
-                    {this.renderButton("fill", "fill all")}
+                    {this.renderButton("cover", "fill all")}
                 </>}
             />
         );

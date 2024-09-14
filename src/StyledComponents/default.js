@@ -5,7 +5,7 @@ export const ContainerDiv = styled.div`
         margin: 5px;
     }
     text-align: center;
-    margin: 20px;
+    margin: 10px 20px 10px 20px;
 `;
 
 export const BackgroundDiv = styled.div`
@@ -38,10 +38,10 @@ export const Button = styled.button.attrs(props => ({
     border-radius: ${props => props.borderRadius || '5px'};
     border-color: ${props => props.secondaryColor};
     font-size: ${props => props.fontSize || "1.2rem"};
-    width: ${props => props.width || "auto"};
+    width: ${props => props.$width || "auto"};
     margin: ${props => props.$margin || '0px'};
-    padding: ${props => props.padding || '4px'};
-    height: auto;
+    padding: ${props => props.$padding || '4px'};
+    height: ${props => props.$height || "auto"};
     display: inline;
     white-space: nowrap;
 `;
@@ -49,13 +49,14 @@ export const Button = styled.button.attrs(props => ({
 export const Label = styled.label`
     color: ${props => props.theme.textColor};
     font-size: 1.5rem;
-    margin: 5px;
+    margin: ${props => props.margin || '5px'};
+    padding: 0px;
 `;
 
 export const SmallLabel = styled.label`
     color: ${props => props.theme.textColor};
     font-size: 17px;
-    margin: ${props => props.margin || '5px'};
+    margin: ${props => props.$margin || '5px'};
     white-space: nowrap;
 `;
 
